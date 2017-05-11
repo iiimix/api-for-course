@@ -1,73 +1,85 @@
-const fs = require("fs")
-const path = require("path")
-const express = require('express');
-const router = express.Router();
+var fs = require("fs")
+var path = require("path")
+var config = require('../config');
+var express = require('express');
+
+
+var router = express.Router();
+
 router.all('*', function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "X-Requested-With");
-    res.header("Access-Control-Allow-Methods", "PUT,POST,GET,OPTIONS");
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header("Access-Control-Allow-Headers", "X-Requested-With,Authorization");
+    res.header("Access-Control-Allow-Methods", "POST,GET,OPTIONS");
     res.header("X-Powered-By", ' 3.2.1')
-    res.header("Content-Type", "application/json;charset=utf-8");
+    // res.header("Content-Type", "application/json;charset=utf-8");
     next();
 });
-
-let grade_list = [];
-
-
+// 异步获取路径下的文件列表
 readDir = (now_path) => {
-    fs.readdir(now_path, function(err, menu) {
-        if (!menu)
-            return;
-        menu.forEach(function(ele) {
-            fs.stat(now_path + "/" + ele, function(err, info) {
-                if (info.isDirectory()) {
-                    // console.log("dir: "+ele)  
-                    grade_list.push(ele);
-                    readDir(now_path + "/" + ele);
-                } else {
-                    // file_list.push(ele);
-                    // console.log("file: " + ele)
+        return new Promise((resolve, reject) => {
+            fs.readdir(now_path, function(err, files) {
+                if (err) {
+                    console.log(err);
+                    return;
                 }
-            })
-        })
+                var count = files.length;
+                let folder_list = [];
+                files.forEach(function(filename) {
+                    fs.stat(now_path + "/" + filename, function(err, stats) {
+                        // console.log(stats)
+                        if (stats.isDirectory()) {
+                            folder_list.push({
+                                name: filename
+                            });
+                        }
+                        count--;
+                        if (count <= 0) {
+                            resolve(folder_list);
+                        }
+                    })
 
-    })
-}
-readDir(path.join(__dirname));
-
+                });
+            });
+        });
+    }
+    //同步获取路径下的文件列表
 readDirSync = (path) => {
     let file_list = [];
     let pa = fs.readdirSync(path);
     pa.forEach(function(ele, index) {
-        // console.log(ele)
         let info = fs.statSync(path + "/" + ele)
         if (info.isDirectory()) {
-            // console.log("dir: " + ele)
-            readDirSync(path + "/" + ele);
+            //it's a folder
+            // readDirSync(path + "/" + ele);
         } else {
-            if(ele!='.DS_Store')file_list.push(ele);
-            // console.log("sync_getfile: " + ele)
+            if (ele != '.DS_Store') {
+                info.name = ele.slice(0, ele.lastIndexOf('.'));
+                info.type = ele.slice(ele.lastIndexOf('.') + 1, ele.length);
+                file_list.push(info)
+            }
         }
     })
-    // console.log(file_list);
     return file_list;
 }
 
 
+router.get('/grade_list',
+    config.auth, 
+    (req, res) => {
+        readDir(path.join(__dirname, '../static/')).then((list) => {
+            res.send(list);
+        })
+    });
 
-// readDirSync(path.resolve(__dirname, '../routes/college_one'));
-// readDirSync(path.resolve('./college_one'));
 
-router.get('/grade', function(req, res) {
-    // res.json(grade_list);
-    res.send(grade_list)
-});
+router.get('/file_list',
+    // config.auth,
+    (req, res) => {
+        let grade = req.query.grade;
+        let file_list = readDirSync(path.resolve(__dirname, '../static/' + grade));
+        res.send(file_list)
+    })
 
 
-router.get('/file_list', function(req, res) {
-    let grade = req.query.grade;
-    let file_list =  readDirSync(path.resolve(__dirname, '../routes/' + grade));
-    res.send(file_list)
-})
 
 module.exports = router;

@@ -15,16 +15,10 @@ const UserSchema = new Schema({
     token: {
         type: String
     },
-    email: {
-        type: String
-    },
     is_admin: {
         type: Boolean
     },
     is_teacher: {
-        type: Boolean
-    },
-    is_login: {
         type: Boolean
     }
 });
@@ -58,7 +52,5 @@ UserSchema.methods.comparePassword = function(passw, cb) {
         cb(null, isMatch);
     });
 };
-
-
 
 module.exports = mongoose.model('User', UserSchema);
