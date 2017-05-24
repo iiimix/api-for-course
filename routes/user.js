@@ -1,5 +1,5 @@
 var express = require('express');
-var User = require('../models/user');
+var User = require('../models/model_user');
 var jwt = require('jsonwebtoken');
 var config = require('../config');
 var passport = require('passport');
@@ -167,7 +167,6 @@ router.delete('/user',
       token: authorization.slice(7, authorization.length)
     }, (err, action_user) => {
       if (action_user.is_admin) {
-        console.log(req.body.name)
         User.findOneAndRemove({
           name: req.body.name
         },function(err, user) {
@@ -244,7 +243,7 @@ router.post('/is_teacher',
           });
           res.json({
             success: true,
-            messagez: '操作成功!'
+            message: '操作成功!'
           });
 
         })

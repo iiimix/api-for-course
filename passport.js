@@ -1,7 +1,7 @@
 const passport = require('passport');
 const Strategy = require('passport-http-bearer').Strategy;
 
-const User = require('./models/user');
+const User = require('./models/model_user');
 const config = require('./config');
 
 module.exports = function(passport) {
