@@ -1,3 +1,12 @@
-##resetful api for course-manange<br>
-use express <br>
-database mongodb
+*Resetful api for course-manange
+Upload and download course*
+
+**Scaffold**
+
+    express + mongodb
+
+**Running locally in development mode**
+
+    mongod
+    npm install
+    node index.js
