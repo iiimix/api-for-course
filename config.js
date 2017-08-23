@@ -5,6 +5,4 @@ config.database = 'mongodb://localhost:27017/course';
 config.auth = passport.authenticate('bearer', {
 	session: false
 })
-
-
 module.exports = config;
