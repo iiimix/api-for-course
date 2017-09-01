@@ -26,7 +26,6 @@ readDir = (now_path) => {
                 let folder_list = [];
                 files.forEach(function(filename) {
                     fs.stat(now_path + "/" + filename, function(err, stats) {
-                        // console.log(stats)
                         if (stats.isDirectory()) {
                             folder_list.push({
                                 name: filename
